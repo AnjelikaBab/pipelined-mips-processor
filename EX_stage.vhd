@@ -27,9 +27,13 @@ entity EX_stage is
         IDEX_i_regWrite    : in std_logic;
         IDEX_i_memToReg    : in std_logic;
 
-        -- Forwarded data
-        ForwardA_data      : in std_logic_vector(31 downto 0);
-        ForwardB_data      : in std_logic_vector(31 downto 0);
+
+        -- Forwarded data from EXMEM and MEMWB
+        ForwardA_EXMEM     : in std_logic_vector(31 downto 0);
+        ForwardA_MEMWB     : in std_logic_vector(31 downto 0);
+        ForwardB_EXMEM     : in std_logic_vector(31 downto 0);
+        ForwardB_MEMWB     : in std_logic_vector(31 downto 0);
+
         ForwardA_sel       : in std_logic_vector(1 downto 0);
         ForwardB_sel       : in std_logic_vector(1 downto 0);
 
@@ -231,7 +235,7 @@ begin
             operation => aluControl
         );
 
-    aluOp_full <= id_aluOp(1) & aluControl;  -- 4-bit ALUOp
+    aluOp_full <= aluControl;  -- 3-bit ALUOp
 
     -- Forwarding MUX for input A
     muxA: nbitmux41
@@ -239,35 +243,37 @@ begin
         port map (
             s0 => ForwardA_sel(0),
             s1 => ForwardA_sel(1),
-            x0 => id_readData1,
-            x1 => ForwardA_data,
-            x2 => ForwardA_data,
+            x0 => id_readData1,     -- no forwarding
+            x1 => ForwardA_EXMEM,   -- forward from EX/MEM
+            x2 => ForwardA_MEMWB,   -- forward from MEM/WB
             x3 => (others => '0'),
             y  => alu_inputA
         );
 
-    -- Forwarding MUX for input B (pre-ALUSrc mux)
+
+    -- Forwarding MUX for input B
     muxB: nbitmux41
         generic map (n => 32)
         port map (
             s0 => ForwardB_sel(0),
             s1 => ForwardB_sel(1),
-            x0 => id_readData2,
-            x1 => ForwardB_data,
-            x2 => ForwardB_data,
+            x0 => id_readData2,     -- no forwarding
+            x1 => ForwardB_EXMEM,   -- forward from EX/MEM
+            x2 => ForwardB_MEMWB,   -- forward from MEM/WB
             x3 => (others => '0'),
             y  => reg_write_data
         );
 
+
     -- -- ALU Src MUX
-    -- aluSrc_mux: nbitmux21
-    --     generic map (n => 32)
-    --     port map (
-    --         s  => id_aluSrc,
-    --         x0 => reg_write_data,
-    --         x1 => id_signExtImm,
-    --         y  => alu_inputB
-    --     );
+    aluSrc_mux: nbitmux21
+        generic map (n => 32)
+        port map (
+            s  => id_aluSrc,
+            x0 => reg_write_data,
+            x1 => id_signExtImm,
+            y  => alu_inputB
+        );
 
     -- ALU
     alu_unit: ALU
