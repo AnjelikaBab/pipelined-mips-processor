@@ -70,25 +70,6 @@ begin
     control_in <= EXMEM_i_branch & EXMEM_i_memRead & EXMEM_i_memWrite & EXMEM_i_regWrite & EXMEM_i_memToReg;
 
     -- Data registers
-    bta_reg : nBitRegister
-        generic map (n => 32)
-        port map (
-            i_resetBar => EXMEM_resetBar,
-            i_load     => EXMEM_load,
-            i_clock    => EXMEM_clk,
-            i_Value    => EXMEM_i_branchTargetAddr,
-            o_Value    => EXMEM_o_branchTargetAddr
-        );
-
-    zero_reg : enARdFF_2
-        port map (
-            i_resetBar => EXMEM_resetBar,
-            i_d        => EXMEM_i_zeroFlag,
-            i_enable   => EXMEM_load,
-            i_clock    => EXMEM_clk,
-            o_q        => EXMEM_o_zeroFlag,
-            o_qBar     => zero_dummy
-        );
 
     aluResult_reg : nBitRegister
         generic map (n => 32)
