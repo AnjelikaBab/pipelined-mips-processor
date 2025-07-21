@@ -9,8 +9,6 @@ entity MEM_stage is
         load         : in  std_logic;
 
         -- Inputs from EX stage
-        EXMEM_i_branchTargetAddr : in  std_logic_vector(31 downto 0);
-        EXMEM_i_zeroFlag         : in  std_logic;
         EXMEM_i_aluResult        : in  std_logic_vector(31 downto 0);
         EXMEM_i_writeData        : in  std_logic_vector(31 downto 0);
         EXMEM_i_destReg          : in  std_logic_vector(4 downto 0);
@@ -44,8 +42,6 @@ architecture Structural of MEM_stage is
             EXMEM_load               : in  std_logic;
 
             -- Data Inputs
-            EXMEM_i_branchTargetAddr : in  std_logic_vector(31 downto 0);
-            EXMEM_i_zeroFlag         : in  std_logic;
             EXMEM_i_aluResult        : in  std_logic_vector(31 downto 0);
             EXMEM_i_writeData        : in  std_logic_vector(31 downto 0);
             EXMEM_i_destReg          : in  std_logic_vector(4 downto 0);
@@ -84,8 +80,6 @@ architecture Structural of MEM_stage is
     end component;
 
     -- Internal signals
-    signal exmem_branchTargetAddr : std_logic_vector(31 downto 0);
-    signal exmem_zeroFlag         : std_logic;
     signal exmem_aluResult        : std_logic_vector(31 downto 0);
     signal exmem_writeData        : std_logic_vector(31 downto 0);
     signal exmem_destReg          : std_logic_vector(4 downto 0);
@@ -108,8 +102,6 @@ begin
             EXMEM_resetBar           => resetBar,
             EXMEM_load               => load,
 
-            EXMEM_i_branchTargetAddr => EXMEM_i_branchTargetAddr,
-            EXMEM_i_zeroFlag         => EXMEM_i_zeroFlag,
             EXMEM_i_aluResult        => EXMEM_i_aluResult,
             EXMEM_i_writeData        => EXMEM_i_writeData,
             EXMEM_i_destReg          => EXMEM_i_destReg,
@@ -120,8 +112,6 @@ begin
             EXMEM_i_regWrite         => EXMEM_i_regWrite,
             EXMEM_i_memToReg         => EXMEM_i_memToReg,
 
-            EXMEM_o_branchTargetAddr => exmem_branchTargetAddr,
-            EXMEM_o_zeroFlag         => exmem_zeroFlag,
             EXMEM_o_aluResult        => exmem_aluResult,
             EXMEM_o_writeData        => exmem_writeData,
             EXMEM_o_destReg          => exmem_destReg,

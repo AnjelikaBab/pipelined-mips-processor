@@ -8,8 +8,6 @@ entity EXMEM_reg is
         EXMEM_load               : in  std_logic;
 
         -- Data Inputs
-        EXMEM_i_branchTargetAddr : in  std_logic_vector(31 downto 0);
-        EXMEM_i_zeroFlag         : in  std_logic;
         EXMEM_i_aluResult        : in  std_logic_vector(31 downto 0);
         EXMEM_i_writeData        : in  std_logic_vector(31 downto 0);
         EXMEM_i_destReg          : in  std_logic_vector(4 downto 0);
@@ -22,8 +20,6 @@ entity EXMEM_reg is
         EXMEM_i_memToReg         : in  std_logic;
 
         -- Data Outputs
-        EXMEM_o_branchTargetAddr : out std_logic_vector(31 downto 0);
-        EXMEM_o_zeroFlag         : out std_logic;
         EXMEM_o_aluResult        : out std_logic_vector(31 downto 0);
         EXMEM_o_writeData        : out std_logic_vector(31 downto 0);
         EXMEM_o_destReg          : out std_logic_vector(4 downto 0);
