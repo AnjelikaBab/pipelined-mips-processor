@@ -83,7 +83,7 @@ begin
             MEMWB_o_memToReg  => memwb_memToReg
         );
 
-    -- Use your nbitmux21 to select write data
+    
     mux_inst : nbitmux21
         generic map (n => 32)
         port map (
