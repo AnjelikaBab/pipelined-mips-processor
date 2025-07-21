@@ -38,6 +38,8 @@ entity EXMEM_reg is
 end EXMEM_reg;
 
 architecture Structural of EXMEM_reg is
+
+    -- n-bit register component
     component nBitRegister
         generic (
             n : integer := 32
@@ -51,11 +53,24 @@ architecture Structural of EXMEM_reg is
         );
     end component;
 
+    -- 1-bit enabled async reset D-FF
+    component enARdFF_2 is
+        port (
+            i_resetBar : in  std_logic;
+            i_d        : in  std_logic;
+            i_enable   : in  std_logic;
+            i_clock    : in  std_logic;
+            o_q        : out std_logic;
+            o_qBar     : out std_logic
+        );
+    end component;
+
     signal control_in  : std_logic_vector(4 downto 0);
     signal control_out : std_logic_vector(4 downto 0);
+    signal zero_dummy  : std_logic;  -- unused o_qBar from enARdFF_2
 
 begin
-    
+
     control_in <= EXMEM_i_branch & EXMEM_i_memRead & EXMEM_i_memWrite & EXMEM_i_regWrite & EXMEM_i_memToReg;
 
     -- Data registers
@@ -69,14 +84,14 @@ begin
             o_Value    => EXMEM_o_branchTargetAddr
         );
 
-    zero_reg : nBitRegister
-        generic map (n => 1)
+    zero_reg : enARdFF_2
         port map (
             i_resetBar => EXMEM_resetBar,
-            i_load     => EXMEM_load,
+            i_d        => EXMEM_i_zeroFlag,
+            i_enable   => EXMEM_load,
             i_clock    => EXMEM_clk,
-            i_Value    => EXMEM_i_zeroFlag & "",
-            o_Value    => EXMEM_o_zeroFlag
+            o_q        => EXMEM_o_zeroFlag,
+            o_qBar     => zero_dummy
         );
 
     aluResult_reg : nBitRegister
@@ -119,7 +134,7 @@ begin
             o_Value    => control_out
         );
 
-    -- Control outputs unpacked
+    -- Control outputs 
     EXMEM_o_branch   <= control_out(4);
     EXMEM_o_memRead  <= control_out(3);
     EXMEM_o_memWrite <= control_out(2);
