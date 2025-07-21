@@ -50,7 +50,11 @@ entity EX_stage is
         EXMEM_o_regWrite   : out std_logic;
         EXMEM_o_memToReg   : out std_logic;
 
-        -- Hazard detection
+        -- Hazard 
+        IDEX_branch_taken
+        IDEX_rt
+        IDEX_rs
+        IDEX_rd
     );
 end EX_stage;
 

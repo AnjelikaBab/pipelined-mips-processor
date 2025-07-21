@@ -31,6 +31,7 @@ entity MEM_stage is
         MEMWB_o_memToReg         : out std_logic;
 
         -- Hazard detection
+        EXMEM_memRead
     );
 end MEM_stage;
 
