@@ -9,7 +9,6 @@ entity EX_stage is
         load        : in  std_logic;
 
         -- Inputs from IDEX pipeline register
-        IDEX_i_pcPlus4     : in std_logic_vector(31 downto 0);
         IDEX_i_readData1   : in std_logic_vector(31 downto 0);
         IDEX_i_readData2   : in std_logic_vector(31 downto 0);
         IDEX_i_signExtImm  : in std_logic_vector(31 downto 0);
@@ -21,7 +20,7 @@ entity EX_stage is
         IDEX_i_aluSrc      : in std_logic;
         IDEX_i_regDst      : in std_logic;
 
-        IDEX_i_branch      : in std_logic;
+        IDEX_i_branch_taken      : in std_logic;
         IDEX_i_memRead     : in std_logic;
         IDEX_i_memWrite    : in std_logic;
         IDEX_i_regWrite    : in std_logic;
@@ -49,7 +48,9 @@ entity EX_stage is
         EXMEM_o_memRead    : out std_logic;
         EXMEM_o_memWrite   : out std_logic;
         EXMEM_o_regWrite   : out std_logic;
-        EXMEM_o_memToReg   : out std_logic
+        EXMEM_o_memToReg   : out std_logic;
+
+        -- Hazard detection
     );
 end EX_stage;
 
@@ -63,7 +64,6 @@ architecture Structural of EX_stage is
             IDEX_load         : in  std_logic;
 
             -- Data inputs
-            IDEX_i_pcPlus4    : in  std_logic_vector(31 downto 0);
             IDEX_i_readData1  : in  std_logic_vector(31 downto 0);
             IDEX_i_readData2  : in  std_logic_vector(31 downto 0);
             IDEX_i_signExtImm : in  std_logic_vector(31 downto 0);
@@ -76,7 +76,7 @@ architecture Structural of EX_stage is
             IDEX_i_aluSrc     : in  std_logic;
             IDEX_i_regDst     : in  std_logic;
 
-            IDEX_i_branch     : in  std_logic;
+            IDEX_i_branch_taken     : in  std_logic;
             IDEX_i_memRead    : in  std_logic;
             IDEX_i_memWrite   : in  std_logic;
 
@@ -97,7 +97,7 @@ architecture Structural of EX_stage is
             IDEX_o_aluSrc     : out std_logic;
             IDEX_o_regDst     : out std_logic;
 
-            IDEX_o_branch     : out std_logic;
+            IDEX_o_branch_taken     : out std_logic;
             IDEX_o_memRead    : out std_logic;
             IDEX_o_memWrite   : out std_logic;
 
@@ -187,7 +187,6 @@ begin
             IDEX_load         => load,
 
             -- Data inputs
-            IDEX_i_pcPlus4    => IDEX_i_pcPlus4,
             IDEX_i_readData1  => IDEX_i_readData1,
             IDEX_i_readData2  => IDEX_i_readData2,
             IDEX_i_signExtImm => IDEX_i_signExtImm,

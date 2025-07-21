@@ -4,69 +4,33 @@ use ieee.std_logic_1164.all;
 entity ID_stage is
     port (
         clk, reset : in std_logic;
-        ID_forwardC, ID_forwardD, IDEX_flush: in std_logic;
-        WB_regWrite : in std_logic;
-        WB_writeData, WB_writeReg:
-        IFID_pcPlus4, IFID_instr : in std_logic_vector(31 downto 0);
+        IDEX_flush: in std_logic;
+        
+        -- forwarded values
+        ID_forwardC, ID_forwardD, : in std_logic;
         EXMEM_aluResult : in std_logic_vector(31 downto 0);
-        ID_branch, ID_branch_taken, ID_jump : out std_logic; -- not latched
+        
+        -- WB stage outputs
+        WB_regWrite : in std_logic;
+        WB_writeData, WB_writeReg: in std_logic_vector(31 downto 0);
+        
+        -- IF stage outputs
+        IFID_pcPlus4, IFID_instr : in std_logic_vector(31 downto 0);
+        
+        -- Branch/Jump signals to IF
+        ID_branch, IDEX_branch_taken, ID_jump : out std_logic; -- not latched
         ID_branch_addr, ID_jump_addr : out std_logic_vector(31 downto 0);
+        
+        -- Outputs to EX stage
         IDEX_readData1, IDEX_readData2, IDEX_signExtImm : out std_logic_vector(31 downto 0);
-        IDEX_signExtImm, IDEX_rd, IDEX_rs, IDEX_rt : out std_logic_vector(4 downto 0);
+        IDEX_rd, IDEX_rs, IDEX_rt : out std_logic_vector(4 downto 0);
         IDEX_aluOp : out std_logic_vector(1 downto 0);
-        IDEX_aluSrc, IDEX_regDst, IDEX_branch_taken, IDEX_memRead, IDEX_memWrite : out std_logic;
+        IDEX_aluSrc, IDEX_regDst, IDEX_memRead, IDEX_memWrite : out std_logic;
         IDEX_regWrite, IDEX_memToReg : out std_logic
     );
 end ID_stage;
 
 architecture structural of ID_stage is
-    component IDEX_reg is
-        port (
-            IDEX_clk          : in  std_logic;
-            IDEX_resetBar     : in  std_logic;
-            IDEX_load         : in  std_logic;
-
-            -- Data inputs
-            IDEX_i_readData1  : in  std_logic_vector(31 downto 0);
-            IDEX_i_readData2  : in  std_logic_vector(31 downto 0);
-            IDEX_i_signExtImm : in  std_logic_vector(31 downto 0);
-            IDEX_i_rd         : in  std_logic_vector(4 downto 0);
-            IDEX_i_rs         : in  std_logic_vector(4 downto 0);
-            IDEX_i_rt         : in  std_logic_vector(4 downto 0);
-
-            -- Control signal inputs
-            IDEX_i_aluOp      : in  std_logic_vector(1 downto 0);
-            IDEX_i_aluSrc     : in  std_logic;
-            IDEX_i_regDst     : in  std_logic;
-
-            IDEX_i_branch_taken     : in  std_logic;
-            IDEX_i_memRead    : in  std_logic;
-            IDEX_i_memWrite   : in  std_logic;
-
-            IDEX_i_regWrite   : in  std_logic;
-            IDEX_i_memToReg   : in  std_logic;
-
-            -- Data outputs
-            IDEX_o_readData1  : out std_logic_vector(31 downto 0);
-            IDEX_o_readData2  : out std_logic_vector(31 downto 0);
-            IDEX_o_signExtImm : out std_logic_vector(31 downto 0);
-            IDEX_o_rd         : out std_logic_vector(4 downto 0);
-            IDEX_o_rs         : out  std_logic_vector(4 downto 0);
-            IDEX_o_rt         : out std_logic_vector(4 downto 0);
-
-            -- Control signal outputs
-            IDEX_o_aluOp      : out std_logic_vector(1 downto 0);
-            IDEX_o_aluSrc     : out std_logic;
-            IDEX_o_regDst     : out std_logic;
-
-            IDEX_o_branch_taken     : out std_logic;
-            IDEX_o_memRead    : out std_logic;
-            IDEX_o_memWrite   : out std_logic;
-
-            IDEX_o_regWrite   : out std_logic;
-            IDEX_o_memToReg   : out std_logic
-        );
-    end component;
 
     component controlLogicUnit IS
         PORT(
@@ -153,6 +117,14 @@ begin
             y => control_mux_out
         );
 
+    IDEX_aluOp <= control_mux_out(4 downto 3)
+    IDEX_aluSrc <= control_mux_out(1)
+    IDEX_regDst, <= control_mux_out(9)
+    IDEX_memRead <= control_mux_out(6)
+    IDEX_memWrite <= control_mux_out(2)
+    IDEX_regWrite <= control_mux_out(0)
+    IDEX_memToReg <= control_mux_out(5)
+
     ID_branch <= control_bus(7);
     ID_jump <= control_bus(8);
     
@@ -202,7 +174,7 @@ begin
         GENERIC MAP(n => 32)
         PORT MAP(
             s => ID_forwardD,
-            x0 => IDEX_readData1,
+            x0 => i_readData1,
             x1 => EXMEM_aluResult,
             y => branch_data1
         );
@@ -211,7 +183,7 @@ begin
         GENERIC MAP(n => 32)
         PORT MAP(
             s => ID_forwardC,
-            x0 => IDEX_readData2,
+            x0 => i_readData2,
             x1 => EXMEM_aluResult,
             y => branch_data2
         );
@@ -226,28 +198,12 @@ begin
             o_AltB => open
         );
     
-    ID_branch_taken <= control_bus(7) and branch_cond;
+    IDEX_branch_taken <= control_bus(7) and branch_cond;
+    IDEX_readData1 <= i_readData1;
+    IDEX_readData2 <= i_readData2;
+    IDEX_signExtImm <= i_signExtImm;
+    IDEX_rd <= IFID_instr(15 downto 11);
+    IDEX_rs <= IFID_instr(25 downto 21);
+    IDEX_rt <= IFID_instr(20 downto 16);
 
-    --pipeline registers
-    idexreg : IDEX_reg
-        GENERIC MAP(n => 32)
-        PORT MAP(
-            IDEX_clk => clk,
-            IDEX_resetBar => resetBar,
-            IDEX_load => '1',
-            IDEX_i_readData1 => i_readData1,
-            IDEX_i_readData2 => i_readData2,
-            IDEX_i_signExtImm => i_signExtImm,
-            IDEX_i_rd => IFID_instr(15 downto 11),
-            IDEX_i_rs => IFID_instr(25 downto 21),
-            IDEX_i_rt => IFID_instr(20 downto 16),
-            IDEX_i_aluOp => control_mux_out(4 downto 3),
-            IDEX_i_aluSrc => control_mux_out(1),
-            IDEX_i_regDst => control_mux_out(9),
-            IDEX_i_branch_taken => ID_branch_taken,
-            IDEX_i_memRead => control_mux_out(6),
-            IDEX_i_memWrite => control_mux_out(2),
-            IDEX_i_regWrite => control_mux_out(0),
-            IDEX_i_memToReg => control_mux_out(5),
-        );
 end structural;

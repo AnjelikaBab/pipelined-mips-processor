@@ -28,7 +28,9 @@ entity MEM_stage is
         MEMWB_o_memRead          : out std_logic;
         MEMWB_o_memWrite         : out std_logic;
         MEMWB_o_regWrite         : out std_logic;
-        MEMWB_o_memToReg         : out std_logic
+        MEMWB_o_memToReg         : out std_logic;
+
+        -- Hazard detection
     );
 end MEM_stage;
 

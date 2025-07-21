@@ -4,10 +4,16 @@ use ieee.std_logic_1164.all;
 entity IF_stage is
     port (
         clk, reset : in std_logic;
+
+        -- From hazard detection unit
         IF_pc_write: in std_logic;
         IFID_flush, IFID_en : in std_logic;
+        
+        -- Inputs from ID stage
         ID_branch, ID_jump : in std_logic;
         ID_branch_addr, ID_jump_addr : in std_logic_vector(31 downto 0);
+        
+        -- Outputs to ID stage
         IFID_pcPlus4, IFID_instr : out std_logic_vector(31 downto 0)
     );
 end IF_stage;
