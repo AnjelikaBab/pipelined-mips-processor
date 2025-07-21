@@ -54,7 +54,7 @@ entity EX_stage is
         IDEX_branch_taken : out std_logic;
         IDEX_rt : out std_logic_vector(4 downto 0);
         IDEX_rs : out std_logic_vector(4 downto 0);
-        IDEX_rd : out std_logic_vector(4 downto 0);
+        IDEX_rd : out std_logic_vector(4 downto 0)
     );
 end EX_stage;
 
@@ -161,7 +161,7 @@ architecture Structural of EX_stage is
     signal id_aluSrc     : std_logic;
     signal id_regDst     : std_logic;
 
-    signal id_branch     : std_logic;
+    signal id_branchtaken     : std_logic;
     signal id_memRead    : std_logic;
     signal id_memWrite   : std_logic;
     signal id_regWrite   : std_logic;
@@ -203,7 +203,7 @@ begin
             IDEX_i_aluSrc     => IDEX_i_aluSrc,
             IDEX_i_regDst     => IDEX_i_regDst,
 
-            IDEX_i_branch     => IDEX_i_branch,
+            IDEX_i_branch_taken     => IDEX_i_branch_taken,
             IDEX_i_memRead    => IDEX_i_memRead,
             IDEX_i_memWrite   => IDEX_i_memWrite,
             IDEX_i_regWrite   => IDEX_i_regWrite,
@@ -223,7 +223,7 @@ begin
             IDEX_o_aluSrc     => id_aluSrc,
             IDEX_o_regDst     => id_regDst,
 
-            IDEX_o_branch     => id_branch,
+            IDEX_o_branch_taken     => id_branchtaken,
             IDEX_o_memRead    => id_memRead,
             IDEX_o_memWrite   => id_memWrite,
             IDEX_o_regWrite   => id_regWrite,
@@ -306,7 +306,7 @@ begin
     EXMEM_o_writeData <= reg_write_data;
     EXMEM_o_destReg   <= writeReg;
 
-    EXMEM_o_branch    <= id_branch;
+    EXMEM_o_branch    <= id_branchtaken;
     EXMEM_o_memRead   <= id_memRead;
     EXMEM_o_memWrite  <= id_memWrite;
     EXMEM_o_regWrite  <= id_regWrite;
@@ -315,6 +315,6 @@ begin
     IDEX_rt <= id_rt;
     IDEX_rs <= id_rs;
     IDEX_rd <= id_rd;
-    IDEX_branch_taken <= id_branch;
+    IDEX_branch_taken <= id_branchtaken;
 
 end Structural;
