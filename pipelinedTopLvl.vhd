@@ -438,7 +438,7 @@ begin
         );
     
     hazard: HazardDetectionUnit
-        port (
+        port map(
             -- input
             if_id_branch => ID_branch,
             if_id_rs => IFID_instr(25 downto 21),
