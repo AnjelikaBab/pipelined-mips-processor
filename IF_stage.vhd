@@ -80,7 +80,7 @@ begin
         generic map (n => 32)
         port map (
             s => ID_jump,
-            x0 => IFID_pcPlus4,
+            x0 => i_pcPlus4,
             x1 => ID_jump_addr,
             y => jump_mux_out
         );
@@ -131,5 +131,6 @@ begin
             IFID_o_pcPlus4 => IFID_pcPlus4,
             IFID_o_instr => IFID_instr
         );
+        
 end structural;
     

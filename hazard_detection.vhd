@@ -28,12 +28,15 @@ architecture structural of hazard_detection is
     SIGNAL condition1, condition2, condition3, condition4: std_logic;
 
 begin
-    condition1 <= (id_ex_mem_read and ((id_ex_rt = if_id_rs) or (id_ex_rt = if_id_rt))); -- memory hazard
-    condition2 <= (id_ex_branch_taken); -- flush condition
+   condition1 <= id_ex_mem_read and (
+                  '1' when (id_ex_rt = if_id_rs or id_ex_rt = if_id_rt) else '0');
+ -- memory hazard
+    condition2 <= id_ex_branch_taken; -- flush condition
     -- dependency between branch and instruction in EX
     condition3 <= (if_id_branch and ((id_ex_rd = if_id_rs) or (id_ex_rd = if_id_rt)));  
     -- dependency between branch and LW instruction
-    condition4 <= (if_id_branch and ex_mem_read and ((ex_mem_rt = if_id_rs) or (ex_mem_rt = if_id_rt))); 
+    condition4 <= if_id_branch and ex_mem_read and (
+                  '1' when (ex_mem_rt = if_id_rs or ex_mem_rt = if_id_rt) else '0');
 
     -- drive outputs
     pc_write <= not (condition1 or condition3 or condition4);

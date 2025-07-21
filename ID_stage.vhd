@@ -7,12 +7,14 @@ entity ID_stage is
         IDEX_flush: in std_logic;
         
         -- forwarded values
-        ID_forwardC, ID_forwardD, : in std_logic;
+        ID_forwardC, ID_forwardD : in std_logic;
         EXMEM_aluResult : in std_logic_vector(31 downto 0);
         
         -- WB stage outputs
         WB_regWrite : in std_logic;
-        WB_writeData, WB_writeReg: in std_logic_vector(31 downto 0);
+        WB_writeData: in std_logic_vector(31 downto 0);
+
+        WB_writeReg: in std_logic_vector(4 downto 0);
         
         -- IF stage outputs
         IFID_pcPlus4, IFID_instr : in std_logic_vector(31 downto 0);
@@ -85,13 +87,14 @@ architecture structural of ID_stage is
     END COMPONENT;
 
     SIGNAL i_signExtImm: STD_LOGIC_VECTOR(31 downto 0);
+    SIGNAL branch_offset: STD_LOGIC_VECTOR(31 downto 0);
     SIGNAL resetBar: STD_LOGIC;
     SIGNAL control_bus, control_mux_out: STD_LOGIC_VECTOR(9 downto 0);
     SIGNAL i_readData1, i_readData2: STD_LOGIC_VECTOR(31 downto 0);
     SIGNAL branch_data1, branch_data2: STD_LOGIC_VECTOR(31 downto 0);
     SIGNAL branch_cond: STD_LOGIC;
 begin
-    resetBar <= not i_reset;
+    resetBar <= not reset;
 
     -- Control Logic
     controlUnit: controlLogicUnit PORT MAP(
@@ -117,13 +120,13 @@ begin
             y => control_mux_out
         );
 
-    IDEX_aluOp <= control_mux_out(4 downto 3)
-    IDEX_aluSrc <= control_mux_out(1)
-    IDEX_regDst, <= control_mux_out(9)
-    IDEX_memRead <= control_mux_out(6)
-    IDEX_memWrite <= control_mux_out(2)
-    IDEX_regWrite <= control_mux_out(0)
-    IDEX_memToReg <= control_mux_out(5)
+    IDEX_aluOp <= control_mux_out(4 downto 3);
+    IDEX_aluSrc <= control_mux_out(1);
+    IDEX_regDst <= control_mux_out(9);
+    IDEX_memRead <= control_mux_out(6);
+    IDEX_memWrite <= control_mux_out(2);
+    IDEX_regWrite <= control_mux_out(0);
+    IDEX_memToReg <= control_mux_out(5);
 
     ID_branch <= control_bus(7);
     ID_jump <= control_bus(8);
@@ -150,7 +153,7 @@ begin
     );
 
     -- Sign extend immediate value
-    i_signExtImm <= (31 DOWNTO 16 => instruction(15)) & instruction(15 DOWNTO 0);
+    i_signExtImm <= (31 DOWNTO 16 => IFID_instr(15)) & IFID_instr(15 DOWNTO 0);
     
     -- Next address logic
     branch_offset <= i_signExtImm(29 DOWNTO 0) & "00";
