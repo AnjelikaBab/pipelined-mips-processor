@@ -20,7 +20,7 @@ entity EX_stage is
         IDEX_i_aluSrc      : in std_logic;
         IDEX_i_regDst      : in std_logic;
 
-        IDEX_i_branch_taken      : in std_logic;
+        IDEX_i_branch_taken    : in std_logic;
         IDEX_i_memRead     : in std_logic;
         IDEX_i_memWrite    : in std_logic;
         IDEX_i_regWrite    : in std_logic;
@@ -51,10 +51,10 @@ entity EX_stage is
         EXMEM_o_memToReg   : out std_logic;
 
         -- Hazard 
-        IDEX_branch_taken
-        IDEX_rt
-        IDEX_rs
-        IDEX_rd
+        IDEX_branch_taken : out std_logic;
+        IDEX_rt : out std_logic_vector(4 downto 0);
+        IDEX_rs : out std_logic_vector(4 downto 0);
+        IDEX_rd : out std_logic_vector(4 downto 0);
     );
 end EX_stage;
 
@@ -311,5 +311,10 @@ begin
     EXMEM_o_memWrite  <= id_memWrite;
     EXMEM_o_regWrite  <= id_regWrite;
     EXMEM_o_memToReg  <= id_memToReg;
+
+    IDEX_rt <= id_rt;
+    IDEX_rs <= id_rs;
+    IDEX_rd <= id_rd;
+    IDEX_branch_taken <= id_branch;
 
 end Structural;
