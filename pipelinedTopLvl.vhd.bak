@@ -31,7 +31,7 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
             IDEX_flush: in std_logic;
             
             -- forwarded values
-            ID_forwardC, ID_forwardD : in std_logic;
+            ID_forwardC, ID_forwardD, : in std_logic;
             EXMEM_aluResult : in std_logic_vector(31 downto 0);
             
             -- WB stage outputs
@@ -136,7 +136,7 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
             MEMWB_o_memRead          : out std_logic;
             MEMWB_o_memWrite         : out std_logic;
             MEMWB_o_regWrite         : out std_logic;
-            MEMWB_o_memToReg         : out std_logic
+            MEMWB_o_memToReg         : out std_logic;
         );
     end component;
 
@@ -202,7 +202,7 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
             if_id_flush: out std_logic;
 
             -- Ouput to ID
-            id_ex_flush: out std_logic
+            id_ex_flush: out std_logic;
         );
     end component;
 
@@ -215,7 +215,7 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
     
     -- ID
     SIGNAL IDEX_flush: std_logic;
-    SIGNAL ID_forwardC, ID_forwardD : std_logic;
+    SIGNAL ID_forwardC, ID_forwardD, : std_logic;
     SIGNAL EXMEM_aluResult : std_logic_vector(31 downto 0);
     SIGNAL WB_regWrite : std_logic;
     SIGNAL WB_writeData, WB_writeReg: std_logic_vector(31 downto 0);
@@ -282,12 +282,9 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
     
     SIGNAL IDEX_rd: std_logic_vector(4 downto 0);
     SIGNAL ex_mem_read: std_logic;
-	 
-	 SIGNAL reset_bar:std_logic;
 
 begin
-	reset_bar <= not reset;
-	
+
     instr_fetch: IF_stage
         port map(
             -- inputs
@@ -428,8 +425,8 @@ begin
             IDEX_rt => IDEX_rt,
             EXMEM_rd => i_EXMEM_rd,
             MEMWB_rd => WB_writeReg,
-            EXMEM_RegWrite => i_regWrite,
-            MEMWB_RegWrite => WB_regWrite,
+            EXMEM_RegWrite => i_regWrite
+            MEMWB_RegWrite => WB_regWrite
             -- output
             ForwardA => ForwardA_sel,
             ForwardB => ForwardB_sel,
