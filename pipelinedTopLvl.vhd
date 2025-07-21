@@ -101,6 +101,12 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
             EXMEM_o_memWrite   : out std_logic;
             EXMEM_o_regWrite   : out std_logic;
             EXMEM_o_memToReg   : out std_logic;
+
+            -- Hazard 
+            IDEX_branch_taken : out std_logic;
+            IDEX_rt : out std_logic_vector(4 downto 0);
+            IDEX_rs : out std_logic_vector(4 downto 0);
+            IDEX_rd : out std_logic_vector(4 downto 0)
         );
     end component;
 
@@ -131,9 +137,6 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
             MEMWB_o_memWrite         : out std_logic;
             MEMWB_o_regWrite         : out std_logic;
             MEMWB_o_memToReg         : out std_logic;
-
-            -- Hazard detection
-            EXMEM_memRead
         );
     end component;
 
@@ -276,38 +279,178 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
     SIGNAL id_ex_rt, id_ex_rd: std_logic_vector(4 downto 0);
     SIGNAL ex_mem_read: std_logic;
     SIGNAL ex_mem_rt: std_logic_vector(4 downto 0);
+    
+    SIGNAL IDEX_rd: std_logic_vector(4 downto 0);
+    SIGNAL ex_mem_read: std_logic;
 
 begin
 
     instr_fetch: IF_stage
         port map(
+            -- inputs
+            clk => clk,
+            reset => reset,
+            IF_pc_write => IF_pc_write,
             IFID_flush => IFID_flush,
             IFID_en => IFID_en,
+            ID_branch => ID_branch,
+            ID_jump => ID_jump,
+            ID_branch_addr => ID_branch_addr,
+            ID_jump_addr => ID_jump_addr,
+            -- outputs
+            IFID_pcPlus4 => IFID_pcPlus4,
+            IFID_instr => IFID_instr
+        );
+    
+    instr_decode: ID_stage
+        port map(
+            -- inputs
+            clk => clk,
+            reset => reset,
+            IDEX_flush => IFID_flush,
+            ID_forwardC => ID_forwardC,
+            ID_forwardD => ID_forwardD,
+            EXMEM_aluResult => EXMEM_aluResult,
+            WB_regWrite => WB_regWrite,
+            WB_writeData => WB_writeData,
+            WB_writeReg => WB_writeReg,
             IFID_pcPlus4 => IFID_pcPlus4,
             IFID_instr => IFID_instr,
-            IF_pc_write => IF_pc_write,
-            IF_branch => ID_branch,
-            IF_jump => ID_jump,
-            IF_branch_addr => ID_branch_addr,
-            IF_jump_addr => ID_jump_addr
-        );
-
-    intr_dec: ID_stage
-        port map(
-            IDEX_flush => IDEX_flush,
+            -- outputs
             IDEX_readData1 => IDEX_i_readData1,
             IDEX_readData2 => IDEX_i_readData2,
-            IDEX_signExtImm => IDEX_i_signExtImm,
+            IDEX_signExtImm  => IDEX_i_signExtImm,
             IDEX_rd => IDEX_i_rd,
             IDEX_rs => IDEX_i_rs,
             IDEX_rt => IDEX_i_rt,
             IDEX_aluOp => IDEX_i_aluOp,
             IDEX_aluSrc => IDEX_i_aluSrc,
             IDEX_regDst => IDEX_i_regDst,
-            IDEX_branch_taken => IDEX_i_branch_taken,
             IDEX_memRead => IDEX_i_memRead,
             IDEX_memWrite => IDEX_i_memWrite,
             IDEX_regWrite => IDEX_i_regWrite,
             IDEX_memToReg => IDEX_i_memToReg
         );
+
+    exec: EX_stage
+        port map(
+            -- inputs
+            clk => clk,
+            resetBar => resetBar,
+            load => '1',
+            IDEX_i_readData1 => IDEX_i_readData1,
+            IDEX_i_readData2 => IDEX_i_readData2,
+            IDEX_i_signExtImm => IDEX_i_signExtImm,
+            IDEX_i_rd => IDEX_i_rd,
+            IDEX_i_rs => IDEX_i_rs,
+            IDEX_i_rt => IDEX_i_rt,
+            IDEX_i_aluOp => IDEX_i_aluOp,
+            IDEX_i_aluSrc => IDEX_i_aluSrc,
+            IDEX_i_regDst => IDEX_i_regDst,
+            IDEX_i_branch_taken => IDEX_i_branch_taken,
+            IDEX_i_memRead => IDEX_i_memRead,
+            IDEX_i_memWrite => IDEX_i_memWrite,
+            IDEX_i_regWrite => IDEX_i_regWrite,
+            IDEX_i_memToReg => IDEX_i_memToReg,
+            ForwardA_EXMEM => ForwardA_EXMEM,
+            ForwardA_MEMWB => ForwardA_MEMWB,
+            ForwardB_EXMEM => ForwardB_EXMEM,
+            ForwardB_MEMWB => ForwardB_MEMWB,
+            ForwardA_sel => ForwardA_sel,
+            ForwardB_sel => ForwardB_sel,
+            funcCode => funcCode,
+            -- Outputs 
+            EXMEM_o_aluResult => EXMEM_i_aluResult,
+            EXMEM_o_writeData => EXMEM_i_writeData,
+            EXMEM_o_destReg => EXMEM_i_destReg,
+            EXMEM_o_branch => EXMEM_i_branch,
+            EXMEM_o_memRead => EXMEM_i_memRead,
+            EXMEM_o_memWrite => EXMEM_i_memWrite,
+            EXMEM_o_regWrite => EXMEM_i_regWrite,
+            EXMEM_o_memToReg => EXMEM_i_memToReg,
+            IDEX_branch_taken => IDEX_branch_taken,
+            IDEX_rt => IDEX_rt,
+            IDEX_rs => IDEX_rs,
+            IDEX_rd => IDEX_rd
+        );
+
+    memory: MEM_stage
+        port map(
+            -- inputs
+            clk => clk,
+            resetBar => resetBar,
+            load => '1',
+            EXMEM_i_aluResult => EXMEM_i_aluResult,
+            EXMEM_i_writeData => EXMEM_i_writeData,
+            EXMEM_i_destReg => EXMEM_i_destReg,
+            EXMEM_i_branch => EXMEM_i_branch,
+            EXMEM_i_memRead => EXMEM_i_memRead,
+            EXMEM_i_memWrite => EXMEM_i_memWrite,
+            EXMEM_i_regWrite => EXMEM_i_regWrite,
+            EXMEM_i_memToReg => EXMEM_i_memToReg,
+            -- output
+            MEMWB_o_aluResult => i_aluResult,
+            MEMWB_o_memData => i_memData,
+            MEMWB_o_destReg => i_EXMEM_rd,
+            MEMWB_o_branch => open,
+            MEMWB_o_memRead => ex_mem_read,
+            MEMWB_o_memWrite => open,
+            MEMWB_o_regWrite => i_regWrite,
+            MEMWB_o_memToReg => i_memToReg
+        );
+
+    writeback: WB_stage
+        port map(
+            -- inputs
+            clk => clk,
+            resetBar => resetBar,
+            load => '1',
+            i_regWrite => i_regWrite,
+            i_memToReg => i_memToReg,
+            i_memData => i_memData,
+            i_aluResult => i_aluResult,
+            i_EXMEM_rd => i_EXMEM_rd,
+            -- outputs
+            o_writeData => WB_writeData,
+            o_MEMWB_rd => WB_writeReg,
+            o_MEMWB_regWrite => WB_regWrite
+        );  
+
+    forward: ForwardingUnit
+        port map(
+            -- input
+            ID_rs => IDEX_i_rs,
+            ID_rt => IDEX_i_rt,
+            IDEX_rs => IDEX_rs,
+            IDEX_rt => IDEX_rt,
+            EXMEM_rd => i_EXMEM_rd,
+            MEMWB_rd => WB_writeReg,
+            EXMEM_RegWrite => i_regWrite
+            MEMWB_RegWrite => WB_regWrite
+            -- output
+            ForwardA => ForwardA_sel,
+            ForwardB => ForwardB_sel,
+            ForwardC => ID_forwardC,
+            ForwardD => ID_forwardD
+        );
     
+    hazard: HazardDetectionUnit
+        port (
+            -- input
+            if_id_branch => ID_branch,
+            if_id_rs => IFID_instr(25 downto 21),
+            if_id_rt => IFID_instr(20 downto 16),
+            id_ex_mem_read => IDEX_i_memRead,
+            id_ex_branch_taken => IDEX_branch_taken,
+            id_ex_rt => IDEX_rt,
+            id_ex_rd => IDEX_rd,
+            ex_mem_read => ex_mem_read,
+            ex_mem_rt => i_EXMEM_rd,
+            -- outputs
+            pc_write => IF_pc_write,
+            if_id_en => IFID_en,
+            if_id_flush => IFID_flush,
+            id_ex_flush => IDEX_flush
+        );
+
+end structural;
