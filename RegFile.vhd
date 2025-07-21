@@ -17,8 +17,9 @@ END RegFile;
 ARCHITECTURE rtl OF RegFile IS
     type regFileType is array (0 to 7) of STD_LOGIC_VECTOR(31 downto 0);
     SIGNAL regArray: regFileType;
+    SIGNAL mux1out, mux2out: STD_LOGIC_VECTOR(31 downto 0);
     SIGNAL reg_enables, reg_loads: STD_LOGIC_VECTOR(7 downto 0);  
-    SIGNAL resetBar: STD_LOGIC;  
+    SIGNAL resetBar, read_write_eq1, read_write_eq2: STD_LOGIC;  
 
     COMPONENT decoder38 IS
         PORT (
@@ -42,6 +43,20 @@ ARCHITECTURE rtl OF RegFile IS
             x0, x1, x2, x3: IN STD_LOGIC_VECTOR(n-1 downto 0) ;
             x4, x5, x6, x7: IN STD_LOGIC_VECTOR(n-1 downto 0) ;
             y: OUT STD_LOGIC_VECTOR(n-1 downto 0) ) ;
+    END COMPONENT;
+
+    COMPONENT nbitmux21 IS
+        GENERIC ( n: INTEGER := 8 );
+        PORT ( s: IN STD_LOGIC ;
+            x0, x1: IN STD_LOGIC_VECTOR(n-1 downto 0) ;
+            y: OUT STD_LOGIC_VECTOR(n-1 downto 0) ) ;
+    END COMPONENT;
+
+    COMPONENT nbitcomparator IS
+        GENERIC(n : INTEGER := 4);
+        PORT(
+            i_A, i_B	: IN STD_LOGIC_VECTOR(n-1 DOWNTO 0);
+            o_AeqB, o_AgtB, o_AltB : OUT STD_LOGIC);
     END COMPONENT;
 
 BEGIN
@@ -93,7 +108,7 @@ BEGIN
             x5 => regArray(5),
             x6 => regArray(6),
             x7 => regArray(7),
-            y => ReadData1
+            y => mux1out 
         );
 
     -- controls read reg 2 port
@@ -111,6 +126,44 @@ BEGIN
             x5 => regArray(5),
             x6 => regArray(6),
             x7 => regArray(7),
+            y => mux2out
+        );
+
+    comp1 : nbitcomparator
+        GENERIC MAP (n => 5)
+        PORT MAP (
+            i_A => ReadReg1,
+            i_B => WriteReg,
+            o_AeqB => read_write_eq1,
+            o_AgtB => open,
+            o_AltB => open
+        );
+
+    comp2 : nbitcomparator
+        GENERIC MAP (n => 5)
+        PORT MAP (
+            i_A => ReadReg2,
+            i_B => WriteReg,
+            o_AeqB => read_write_eq2,
+            o_AgtB => open,
+            o_AltB => open
+        );
+
+    read_write_mux1 : nbitmux21
+        GENERIC MAP (n => 32)
+        PORT MAP (
+            s => read_write_eq1,
+            x0 => mux1out,
+            x1 => WriteData,
+            y => ReadData1
+        );
+
+    read_write_mux2 : nbitmux21
+        GENERIC MAP (n => 32)
+        PORT MAP (
+            s => read_write_eq2,
+            x0 => mux2out,
+            x1 => WriteData,
             y => ReadData2
         );
 
