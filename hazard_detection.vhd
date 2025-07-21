@@ -3,14 +3,24 @@ use ieee.std_logic_1164.all;
 
 entity hazard_detection is
     port (
+        -- ID
         if_id_branch: in std_logic;
-        id_ex_mem_read, id_ex_branch_taken: in std_logic;
-        ex_mem_read: in std_logic;
         if_id_rs, if_id_rt: in std_logic_vector(4 downto 0);
+
+        -- EX
+        id_ex_mem_read, id_ex_branch_taken: in std_logic;
         id_ex_rt, id_ex_rd: in std_logic_vector(4 downto 0);
+        
+        -- MEM
+        ex_mem_read: in std_logic;
         ex_mem_rt: in std_logic_vector(4 downto 0);
+        
+        -- Outputs to IF
         pc_write, if_id_en: out std_logic;
-        if_id_flush, id_ex_flush: out std_logic
+        if_id_flush: out std_logic;
+
+        -- Ouput to ID
+        id_ex_flush: out std_logic;
     );
 end hazard_detection;
 
