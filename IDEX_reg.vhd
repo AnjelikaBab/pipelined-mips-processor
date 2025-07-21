@@ -13,6 +13,7 @@ entity IDEX_reg is
         IDEX_i_readData2  : in  std_logic_vector(31 downto 0);
         IDEX_i_signExtImm : in  std_logic_vector(31 downto 0);
         IDEX_i_rd         : in  std_logic_vector(4 downto 0);
+        IDEX_i_rs         : in  std_logic_vector(4 downto 0);
         IDEX_i_rt         : in  std_logic_vector(4 downto 0);
 
         -- Control signal inputs
@@ -33,6 +34,7 @@ entity IDEX_reg is
         IDEX_o_readData2  : out std_logic_vector(31 downto 0);
         IDEX_o_signExtImm : out std_logic_vector(31 downto 0);
         IDEX_o_rd         : out std_logic_vector(4 downto 0);
+        IDEX_o_rs         : in  std_logic_vector(4 downto 0);
         IDEX_o_rt         : out std_logic_vector(4 downto 0);
 
         -- Control signal outputs
@@ -129,6 +131,16 @@ begin
             i_clock    => IDEX_clk,
             i_Value    => IDEX_i_rt,
             o_Value    => IDEX_o_rt
+        );
+
+    rs_reg: nBitRegister
+        generic map (n => 5)
+        port map (
+            i_resetBar => IDEX_resetBar,
+            i_load     => IDEX_load,
+            i_clock    => IDEX_clk,
+            i_Value    => IDEX_i_rs,
+            o_Value    => IDEX_o_rs
         );
 
     -- Single control register for all 9 control bits
