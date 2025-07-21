@@ -20,7 +20,7 @@ entity hazard_detection is
         if_id_flush: out std_logic;
 
         -- Ouput to ID
-        id_ex_flush: out std_logic;
+        id_ex_flush: out std_logic
     );
 end hazard_detection;
 
