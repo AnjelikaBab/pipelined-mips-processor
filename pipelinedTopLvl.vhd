@@ -36,7 +36,8 @@ architecture structural of pipelinedTopLvl is
             
             -- WB stage outputs
             WB_regWrite : in std_logic;
-            WB_writeData, WB_writeReg: in std_logic_vector(31 downto 0);
+            WB_writeData : in std_logic_vector(31 downto 0);
+				WB_writeReg : in std_logic_vector(4 downto 0);
             
             -- IF stage outputs
             IFID_pcPlus4, IFID_instr : in std_logic_vector(31 downto 0);
@@ -218,7 +219,8 @@ architecture structural of pipelinedTopLvl is
     SIGNAL ID_forwardC, ID_forwardD : std_logic;
     SIGNAL EXMEM_aluResult : std_logic_vector(31 downto 0);
     SIGNAL WB_regWrite : std_logic;
-    SIGNAL WB_writeData, WB_writeReg: std_logic_vector(31 downto 0);
+    SIGNAL WB_writeData: std_logic_vector(31 downto 0);
+	 SIGNAL WB_writeReg: std_logic_vector(4 downto 0);
     SIGNAL IFID_pcPlus4, IFID_instr : std_logic_vector(31 downto 0);
     
     -- EX

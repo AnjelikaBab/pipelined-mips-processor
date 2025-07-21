@@ -62,51 +62,52 @@ architecture Structural of EX_stage is
 
     -- Components
     component IDEX_reg
-		port (
-        IDEX_clk          : in  std_logic;
-        IDEX_resetBar     : in  std_logic;
-        IDEX_load         : in  std_logic;
+         port (
+            IDEX_clk          : in  std_logic;
+            IDEX_resetBar     : in  std_logic;
+            IDEX_load         : in  std_logic;
 
-        -- Data inputs
-        IDEX_i_readData1  : in  std_logic_vector(31 downto 0);
-        IDEX_i_readData2  : in  std_logic_vector(31 downto 0);
-        IDEX_i_signExtImm : in  std_logic_vector(31 downto 0);
-        IDEX_i_rd         : in  std_logic_vector(4 downto 0);
-        IDEX_i_rs         : in  std_logic_vector(4 downto 0);
-        IDEX_i_rt         : in  std_logic_vector(4 downto 0);
+            -- Data inputs
+            IDEX_i_readData1  : in  std_logic_vector(31 downto 0);
+            IDEX_i_readData2  : in  std_logic_vector(31 downto 0);
+            IDEX_i_signExtImm : in  std_logic_vector(31 downto 0);
+            IDEX_i_rd         : in  std_logic_vector(4 downto 0);
+            IDEX_i_rs         : in std_logic_vector(4 downto 0);
+            IDEX_i_rt         : in  std_logic_vector(4 downto 0);
 
-        -- Control signal inputs
-        IDEX_i_aluOp      : in  std_logic_vector(1 downto 0);
-        IDEX_i_aluSrc     : in  std_logic;
-        IDEX_i_regDst     : in  std_logic;
+            -- Control signal inputs
+            IDEX_i_aluOp      : in  std_logic_vector(1 downto 0);
+            IDEX_i_aluSrc     : in  std_logic;
+            IDEX_i_regDst     : in  std_logic;
 
-        IDEX_i_branch_taken     : in  std_logic;
-        IDEX_i_memRead    : in  std_logic;
-        IDEX_i_memWrite   : in  std_logic;
+            IDEX_i_branch_taken     : in  std_logic;
+            IDEX_i_memRead    : in  std_logic;
+            IDEX_i_memWrite   : in  std_logic;
 
-        IDEX_i_regWrite   : in  std_logic;
-        IDEX_i_memToReg   : in  std_logic;
+            IDEX_i_regWrite   : in  std_logic;
+            IDEX_i_memToReg   : in  std_logic;
 
-        -- Data outputs
-        IDEX_o_readData1  : out std_logic_vector(31 downto 0);
-        IDEX_o_readData2  : out std_logic_vector(31 downto 0);
-        IDEX_o_signExtImm : out std_logic_vector(31 downto 0);
-        IDEX_o_rd         : out std_logic_vector(4 downto 0);
-        IDEX_o_rs         : out  std_logic_vector(4 downto 0);
-        IDEX_o_rt         : out std_logic_vector(4 downto 0);
+            -- Data outputs
+            IDEX_o_pcPlus4    : out std_logic_vector(31 downto 0);
+            IDEX_o_readData1  : out std_logic_vector(31 downto 0);
+            IDEX_o_readData2  : out std_logic_vector(31 downto 0);
+            IDEX_o_signExtImm : out std_logic_vector(31 downto 0);
+            IDEX_o_rd         : out std_logic_vector(4 downto 0);
+            IDEX_o_rs         : out std_logic_vector(4 downto 0);
+            IDEX_o_rt         : out std_logic_vector(4 downto 0);
 
-        -- Control signal outputs
-        IDEX_o_aluOp      : out std_logic_vector(1 downto 0);
-        IDEX_o_aluSrc     : out std_logic;
-        IDEX_o_regDst     : out std_logic;
+            -- Control signal outputs
+            IDEX_o_aluOp      : out std_logic_vector(1 downto 0);
+            IDEX_o_aluSrc     : out std_logic;
+            IDEX_o_regDst     : out std_logic;
 
-        IDEX_o_branch_taken     : out std_logic;
-        IDEX_o_memRead    : out std_logic;
-        IDEX_o_memWrite   : out std_logic;
+            IDEX_o_branch_taken     : out std_logic;
+            IDEX_o_memRead    : out std_logic;
+            IDEX_o_memWrite   : out std_logic;
 
-        IDEX_o_regWrite   : out std_logic;
-        IDEX_o_memToReg   : out std_logic
-		);
+            IDEX_o_regWrite   : out std_logic;
+            IDEX_o_memToReg   : out std_logic
+        );
     end component;
 
     component ALU
@@ -209,6 +210,7 @@ begin
             IDEX_i_memToReg   => IDEX_i_memToReg,
 
             -- Data outputs (internal signals)
+            IDEX_o_pcPlus4    => id_pcPlus4,
             IDEX_o_readData1  => id_readData1,
             IDEX_o_readData2  => id_readData2,
             IDEX_o_signExtImm => id_signExtImm,

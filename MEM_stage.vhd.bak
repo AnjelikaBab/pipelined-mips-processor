@@ -37,37 +37,39 @@ end MEM_stage;
 architecture Structural of MEM_stage is
 
     -- EXMEM pipeline register component
-	component EXMEM_reg is
-    port (
-        EXMEM_clk                : in  std_logic;
-        EXMEM_resetBar           : in  std_logic;
-        EXMEM_load               : in  std_logic;
+    component EXMEM_reg
+        port (
+            EXMEM_clk                : in  std_logic;
+            EXMEM_resetBar           : in  std_logic;
+            EXMEM_load               : in  std_logic;
 
-        -- Data Inputs
-        EXMEM_i_aluResult        : in  std_logic_vector(31 downto 0);
-        EXMEM_i_writeData        : in  std_logic_vector(31 downto 0);
-        EXMEM_i_destReg          : in  std_logic_vector(4 downto 0);
+            -- Data Inputs
+            EXMEM_i_aluResult        : in  std_logic_vector(31 downto 0);
+            EXMEM_i_writeData        : in  std_logic_vector(31 downto 0);
+            EXMEM_i_destReg          : in  std_logic_vector(4 downto 0);
 
-        -- Control Inputs
-        EXMEM_i_branch           : in  std_logic;
-        EXMEM_i_memRead          : in  std_logic;
-        EXMEM_i_memWrite         : in  std_logic;
-        EXMEM_i_regWrite         : in  std_logic;
-        EXMEM_i_memToReg         : in  std_logic;
+            -- Control Inputs
+            EXMEM_i_branch           : in  std_logic;
+            EXMEM_i_memRead          : in  std_logic;
+            EXMEM_i_memWrite         : in  std_logic;
+            EXMEM_i_regWrite         : in  std_logic;
+            EXMEM_i_memToReg         : in  std_logic;
 
-        -- Data Outputs
-        EXMEM_o_aluResult        : out std_logic_vector(31 downto 0);
-        EXMEM_o_writeData        : out std_logic_vector(31 downto 0);
-        EXMEM_o_destReg          : out std_logic_vector(4 downto 0);
+            -- Data Outputs
+            EXMEM_o_branchTargetAddr : out std_logic_vector(31 downto 0);
+            EXMEM_o_zeroFlag         : out std_logic;
+            EXMEM_o_aluResult        : out std_logic_vector(31 downto 0);
+            EXMEM_o_writeData        : out std_logic_vector(31 downto 0);
+            EXMEM_o_destReg          : out std_logic_vector(4 downto 0);
 
-        -- Control Outputs
-        EXMEM_o_branch           : out std_logic;
-        EXMEM_o_memRead          : out std_logic;
-        EXMEM_o_memWrite         : out std_logic;
-        EXMEM_o_regWrite         : out std_logic;
-        EXMEM_o_memToReg         : out std_logic
-    );
-	end component;
+            -- Control Outputs
+            EXMEM_o_branch           : out std_logic;
+            EXMEM_o_memRead          : out std_logic;
+            EXMEM_o_memWrite         : out std_logic;
+            EXMEM_o_regWrite         : out std_logic;
+            EXMEM_o_memToReg         : out std_logic
+        );
+    end component;
 
     component dataMem
         port (

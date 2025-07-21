@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity ForwardingUnit is
+entity forwarding_unit is
     port (
         -- as soon as the registers get decoded, before it's stored in the following pipeline register
         ID_rs           : in  std_logic_vector(4 downto 0);
@@ -25,7 +25,7 @@ entity ForwardingUnit is
     );
 end entity;
 
-architecture Behavioral of ForwardingUnit is
+architecture Behavioral of forwarding_unit is
 begin
 
     process(ID_rs, ID_rt, IDEX_rs, IDEX_rt, EXMEM_rd, MEMWB_rd, EXMEM_RegWrite, MEMWB_RegWrite)
