@@ -7,7 +7,7 @@ entity pipelinedTopLvl is
     );
 end pipelinedTopLvl;
 
-architecture pipelinedTopLvl_arch of pipelinedTopLvl is
+architecture structural of pipelinedTopLvl is
     component IF_stage is
         port (
             clk, reset : in std_logic;
@@ -160,7 +160,7 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
         );
     end component;
     
-    component ForwardingUnit is
+    component forwarding_unit is
         port (
             -- as soon as the registers get decoded, before it's stored in the following pipeline register
             ID_rs           : in  std_logic_vector(4 downto 0);
@@ -255,14 +255,11 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
     SIGNAL EXMEM_i_memToReg         :  std_logic;
 
     -- WB
-    SIGNAL EXMEM_i_aluResult        :  std_logic_vector(31 downto 0);
-    SIGNAL EXMEM_i_writeData        :  std_logic_vector(31 downto 0);
-    SIGNAL EXMEM_i_destReg          :  std_logic_vector(4 downto 0);
-    SIGNAL EXMEM_i_branch           :  std_logic;
-    SIGNAL EXMEM_i_memRead          :  std_logic;
-    SIGNAL EXMEM_i_memWrite         :  std_logic;
-    SIGNAL EXMEM_i_regWrite         :  std_logic;
-    SIGNAL EXMEM_i_memToReg         :  std_logic;
+    SIGNAL i_regWrite   :  std_logic;
+    SIGNAL i_memToReg   :  std_logic;
+    SIGNAL i_memData    :  std_logic_vector(31 downto 0);
+    SIGNAL i_aluResult  :  std_logic_vector(31 downto 0);
+    SIGNAL i_EXMEM_rd   :  std_logic_vector(4 downto 0);
 
     -- forwarding unit
     SIGNAL ID_rs           :  std_logic_vector(4 downto 0);
@@ -280,14 +277,13 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
     SIGNAL ex_mem_read: std_logic;
     SIGNAL ex_mem_rt: std_logic_vector(4 downto 0);
     
-    SIGNAL IDEX_rd: std_logic_vector(4 downto 0);
-    SIGNAL ex_mem_read: std_logic;
-	 
-	 SIGNAL reset_bar:std_logic;
+    SIGNAL IDEX_rd: std_logic_vector(4 downto 0);	 
+	 SIGNAL resetBar: std_logic;
+	 SIGNAL IDEX_branch_taken: std_logic;
 
 begin
-	reset_bar <= not reset;
-	
+	resetBar <= not reset;
+
     instr_fetch: IF_stage
         port map(
             -- inputs
@@ -419,7 +415,7 @@ begin
             o_MEMWB_regWrite => WB_regWrite
         );  
 
-    forward: ForwardingUnit
+    forward: forwarding_unit
         port map(
             -- input
             ID_rs => IDEX_i_rs,
@@ -437,7 +433,7 @@ begin
             ForwardD => ID_forwardD
         );
     
-    hazard: HazardDetectionUnit
+    hazard: hazard_detection
         port map(
             -- input
             if_id_branch => ID_branch,
