@@ -68,7 +68,7 @@ architecture Structural of EX_stage is
             IDEX_i_readData2  : in  std_logic_vector(31 downto 0);
             IDEX_i_signExtImm : in  std_logic_vector(31 downto 0);
             IDEX_i_rd         : in  std_logic_vector(4 downto 0);
-            IDEX_i_rs         : out std_logic_vector(4 downto 0);
+            IDEX_i_rs         : in std_logic_vector(4 downto 0);
             IDEX_i_rt         : in  std_logic_vector(4 downto 0);
 
             -- Control signal inputs
@@ -235,7 +235,8 @@ begin
             operation => aluControl
         );
 
-    aluOp_full <= aluControl;  -- 3-bit ALUOp
+    aluOp_full <= '0' & aluControl;  -- Extend to 4-bit
+
 
     -- Forwarding MUX for input A
     muxA: nbitmux41
