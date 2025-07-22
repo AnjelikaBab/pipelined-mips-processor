@@ -28,7 +28,8 @@ entity ID_stage is
         IDEX_rd, IDEX_rs, IDEX_rt : out std_logic_vector(4 downto 0);
         IDEX_aluOp : out std_logic_vector(1 downto 0);
         IDEX_aluSrc, IDEX_regDst, IDEX_memRead, IDEX_memWrite : out std_logic;
-        IDEX_regWrite, IDEX_memToReg : out std_logic
+        IDEX_regWrite, IDEX_memToReg : out std_logic;
+        functionCode : out std_logic_vector(5 downto 0)
     );
 end ID_stage;
 
@@ -208,5 +209,6 @@ begin
     IDEX_rd <= IFID_instr(15 downto 11);
     IDEX_rs <= IFID_instr(25 downto 21);
     IDEX_rt <= IFID_instr(20 downto 16);
+    functionCode <= IFID_instr(5 downto 0);
 
 end structural;

@@ -20,10 +20,10 @@ ARCHITECTURE tb OF tb_top_lvl IS
 BEGIN
 
     -- Instantiate the Unit Under Test (UUT)
-    uut: toplvl
+    uut: pipelinedTopLvl
         PORT MAP (
             clk   => clk_tb,
-            reset => reset_tb,
+            reset => reset_tb
         );
 
     -- One-line clock generator (10 ns period)
@@ -38,7 +38,8 @@ BEGIN
         reset_tb <= '0';
 
         -- Let simulation run
-        WAIT;
+        wait for 160 us;        
+        REPORT "All tests passed." SEVERITY note;
     END PROCESS;
 
 END tb;

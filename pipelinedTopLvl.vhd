@@ -51,7 +51,8 @@ architecture structural of pipelinedTopLvl is
             IDEX_rd, IDEX_rs, IDEX_rt : out std_logic_vector(4 downto 0);
             IDEX_aluOp : out std_logic_vector(1 downto 0);
             IDEX_aluSrc, IDEX_regDst, IDEX_memRead, IDEX_memWrite : out std_logic;
-            IDEX_regWrite, IDEX_memToReg : out std_logic
+            IDEX_regWrite, IDEX_memToReg : out std_logic;
+            functionCode : out std_logic_vector(5 downto 0)
         );
     end component;
 
@@ -220,7 +221,7 @@ architecture structural of pipelinedTopLvl is
     SIGNAL EXMEM_aluResult : std_logic_vector(31 downto 0);
     SIGNAL WB_regWrite : std_logic;
     SIGNAL WB_writeData: std_logic_vector(31 downto 0);
-	 SIGNAL WB_writeReg: std_logic_vector(4 downto 0);
+    SIGNAL WB_writeReg: std_logic_vector(4 downto 0);
     SIGNAL IFID_pcPlus4, IFID_instr : std_logic_vector(31 downto 0);
     
     -- EX
@@ -245,6 +246,7 @@ architecture structural of pipelinedTopLvl is
     SIGNAL ForwardA_sel       : std_logic_vector(1 downto 0);
     SIGNAL ForwardB_sel       : std_logic_vector(1 downto 0);
     SIGNAL funcCode           : std_logic_vector(5 downto 0);
+    SIGNAL IDEX_rd: std_logic_vector(4 downto 0);	 
 
     -- MEM
     SIGNAL EXMEM_i_aluResult        :  std_logic_vector(31 downto 0);
@@ -278,10 +280,9 @@ architecture structural of pipelinedTopLvl is
     SIGNAL id_ex_rt, id_ex_rd: std_logic_vector(4 downto 0);
     SIGNAL ex_mem_read: std_logic;
     SIGNAL ex_mem_rt: std_logic_vector(4 downto 0);
-    
-    SIGNAL IDEX_rd: std_logic_vector(4 downto 0);	 
-	 SIGNAL resetBar: std_logic;
 	 SIGNAL IDEX_branch_taken: std_logic;
+    
+    SIGNAL resetBar: std_logic;
 
 begin
 	resetBar <= not reset;
@@ -308,7 +309,7 @@ begin
             -- inputs
             clk => clk,
             reset => reset,
-            IDEX_flush => IFID_flush,
+            IDEX_flush => IDEX_flush,
             ID_forwardC => ID_forwardC,
             ID_forwardD => ID_forwardD,
             EXMEM_aluResult => EXMEM_aluResult,
@@ -331,6 +332,12 @@ begin
             IDEX_memWrite => IDEX_i_memWrite,
             IDEX_regWrite => IDEX_i_regWrite,
             IDEX_memToReg => IDEX_i_memToReg
+            functionCode => funcCode,
+            ID_branch => ID_branch, 
+            IDEX_branch_taken => IDEX_i_branch_taken,
+            ID_jump => ID_jump,
+            ID_branch_addr => ID_branch_addr,
+            ID_jump_addr => ID_jump_addr
         );
 
     exec: EX_stage
@@ -353,10 +360,10 @@ begin
             IDEX_i_memWrite => IDEX_i_memWrite,
             IDEX_i_regWrite => IDEX_i_regWrite,
             IDEX_i_memToReg => IDEX_i_memToReg,
-            ForwardA_EXMEM => ForwardA_EXMEM,
-            ForwardA_MEMWB => ForwardA_MEMWB,
-            ForwardB_EXMEM => ForwardB_EXMEM,
-            ForwardB_MEMWB => ForwardB_MEMWB,
+            ForwardA_EXMEM => i_aluResult,
+            ForwardA_MEMWB => WB_writeData,
+            ForwardB_EXMEM => i_aluResult,
+            ForwardB_MEMWB => WB_writeData,
             ForwardA_sel => ForwardA_sel,
             ForwardB_sel => ForwardB_sel,
             funcCode => funcCode,
