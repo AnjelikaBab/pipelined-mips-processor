@@ -74,6 +74,7 @@ architecture Structural of EX_stage is
         IDEX_i_rd         : in  std_logic_vector(4 downto 0);
         IDEX_i_rs         : in  std_logic_vector(4 downto 0);
         IDEX_i_rt         : in  std_logic_vector(4 downto 0);
+        IDEX_i_funcCode   : in  std_logic_vector(5 downto 0);
 
         -- Control signal inputs
         IDEX_i_aluOp      : in  std_logic_vector(1 downto 0);
@@ -94,6 +95,7 @@ architecture Structural of EX_stage is
         IDEX_o_rd         : out std_logic_vector(4 downto 0);
         IDEX_o_rs         : out  std_logic_vector(4 downto 0);
         IDEX_o_rt         : out std_logic_vector(4 downto 0);
+        IDEX_o_funcCode   : out std_logic_vector(5 downto 0);
 
         -- Control signal outputs
         IDEX_o_aluOp      : out std_logic_vector(1 downto 0);
@@ -179,6 +181,7 @@ architecture Structural of EX_stage is
     signal carryOut      : std_logic;
 
     signal writeReg      : std_logic_vector(4 downto 0);
+    SIGNAL IDEX_o_funcCode : std_logic_vector(5 downto 0);
 
 begin
 
@@ -196,6 +199,7 @@ begin
             IDEX_i_rd         => IDEX_i_rd,
             IDEX_i_rs         => IDEX_i_rs,
             IDEX_i_rt         => IDEX_i_rt,
+            IDEX_i_funcCode   => funcCode,
 
             -- Control inputs
             IDEX_i_aluOp      => IDEX_i_aluOp,
@@ -215,6 +219,7 @@ begin
             IDEX_o_rd         => id_rd,
             IDEX_o_rs         => id_rs,
             IDEX_o_rt         => id_rt,
+            IDEX_o_funcCode   => IDEX_o_funcCode,
 
             -- Control outputs
             IDEX_o_aluOp      => id_aluOp,
@@ -232,7 +237,7 @@ begin
     alu_ctrl: ALU_control
         port map (
             aluOP     => id_aluOp,
-            funcCode  => funcCode,
+            funcCode  => IDEX_o_funcCode,
             operation => aluControl
         );
 
@@ -246,8 +251,8 @@ begin
             s0 => ForwardA_sel(0),
             s1 => ForwardA_sel(1),
             x0 => id_readData1,     -- no forwarding
-            x1 => ForwardA_EXMEM,   -- forward from EX/MEM
-            x2 => ForwardA_MEMWB,   -- forward from MEM/WB
+            x1 => ForwardA_MEMWB,   -- forward from MEM/WB
+            x2 => ForwardA_EXMEM,   -- forward from EX/MEM
             x3 => (others => '0'),
             y  => alu_inputA
         );
@@ -260,8 +265,8 @@ begin
             s0 => ForwardB_sel(0),
             s1 => ForwardB_sel(1),
             x0 => id_readData2,     -- no forwarding
-            x1 => ForwardB_EXMEM,   -- forward from EX/MEM
-            x2 => ForwardB_MEMWB,   -- forward from MEM/WB
+            x1 => ForwardB_MEMWB,   -- forward from MEM/WB
+            x2 => ForwardB_EXMEM,   -- forward from EX/MEM
             x3 => (others => '0'),
             y  => reg_write_data
         );

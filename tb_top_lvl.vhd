@@ -38,8 +38,7 @@ BEGIN
         reset_tb <= '0';
 
         -- Let simulation run
-        wait for 160 us;        
-        REPORT "All tests passed." SEVERITY note;
+        WAIT;
     END PROCESS;
 
 END tb;

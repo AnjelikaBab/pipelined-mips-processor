@@ -143,8 +143,8 @@ begin
             o_Value    => control_out
         );
 
-    func_reg: nBitRegister
-        generic map (n => 6)
+    control_reg: nBitRegister
+        generic map (n => 5)
         port map (
             i_resetBar => IDEX_resetBar,
             i_load     => IDEX_load,

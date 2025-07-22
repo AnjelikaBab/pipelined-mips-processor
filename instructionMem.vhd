@@ -31,4 +31,5 @@ architecture rtl of instruction_memory is
     );
 begin
     instr_out <= rom(to_integer(unsigned(address)));
+    -- instr_out <= (others => '0');
 end architecture;

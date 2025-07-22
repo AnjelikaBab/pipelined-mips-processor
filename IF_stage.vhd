@@ -117,7 +117,7 @@ begin
 
     instr_mem: instruction_memory
         port map (
-            address => PC_out(7 downto 0),
+            address => PC_out(9 downto 2),
             instr_out => i_IFID_instr
         );
 

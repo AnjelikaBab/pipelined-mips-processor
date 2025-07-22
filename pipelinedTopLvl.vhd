@@ -216,9 +216,8 @@ architecture structural of pipelinedTopLvl is
     SIGNAL ID_branch_addr, ID_jump_addr : std_logic_vector(31 downto 0);
     
     -- ID
-    SIGNAL IDEX_flush: std_logic;
+    SIGNAL i_IDEX_flush: std_logic;
     SIGNAL ID_forwardC, ID_forwardD : std_logic;
-    SIGNAL EXMEM_aluResult : std_logic_vector(31 downto 0);
     SIGNAL WB_regWrite : std_logic;
     SIGNAL WB_writeData: std_logic_vector(31 downto 0);
     SIGNAL WB_writeReg: std_logic_vector(4 downto 0);
@@ -280,7 +279,7 @@ architecture structural of pipelinedTopLvl is
     SIGNAL id_ex_rt, id_ex_rd: std_logic_vector(4 downto 0);
     SIGNAL ex_mem_read: std_logic;
     SIGNAL ex_mem_rt: std_logic_vector(4 downto 0);
-	 SIGNAL IDEX_branch_taken: std_logic;
+	SIGNAL IDEX_branch_taken: std_logic;
     
     SIGNAL resetBar: std_logic;
 
@@ -309,10 +308,10 @@ begin
             -- inputs
             clk => clk,
             reset => reset,
-            IDEX_flush => IDEX_flush,
+            IDEX_flush => i_IDEX_flush,
             ID_forwardC => ID_forwardC,
             ID_forwardD => ID_forwardD,
-            EXMEM_aluResult => EXMEM_aluResult,
+            EXMEM_aluResult => i_aluResult,
             WB_regWrite => WB_regWrite,
             WB_writeData => WB_writeData,
             WB_writeReg => WB_writeReg,
@@ -331,7 +330,7 @@ begin
             IDEX_memRead => IDEX_i_memRead,
             IDEX_memWrite => IDEX_i_memWrite,
             IDEX_regWrite => IDEX_i_regWrite,
-            IDEX_memToReg => IDEX_i_memToReg
+            IDEX_memToReg => IDEX_i_memToReg,
             functionCode => funcCode,
             ID_branch => ID_branch, 
             IDEX_branch_taken => IDEX_i_branch_taken,
@@ -448,7 +447,7 @@ begin
             if_id_branch => ID_branch,
             if_id_rs => IFID_instr(25 downto 21),
             if_id_rt => IFID_instr(20 downto 16),
-            id_ex_mem_read => IDEX_i_memRead,
+            id_ex_mem_read => EXMEM_i_memRead,
             id_ex_branch_taken => IDEX_branch_taken,
             id_ex_rt => IDEX_rt,
             id_ex_rd => IDEX_rd,
@@ -458,7 +457,7 @@ begin
             pc_write => IF_pc_write,
             if_id_en => IFID_en,
             if_id_flush => IFID_flush,
-            id_ex_flush => IDEX_flush
+            id_ex_flush => i_IDEX_flush
         );
 
 end structural;

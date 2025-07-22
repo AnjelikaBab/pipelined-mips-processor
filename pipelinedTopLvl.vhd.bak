@@ -7,7 +7,7 @@ entity pipelinedTopLvl is
     );
 end pipelinedTopLvl;
 
-architecture pipelinedTopLvl_arch of pipelinedTopLvl is
+architecture structural of pipelinedTopLvl is
     component IF_stage is
         port (
             clk, reset : in std_logic;
@@ -31,12 +31,13 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
             IDEX_flush: in std_logic;
             
             -- forwarded values
-            ID_forwardC, ID_forwardD, : in std_logic;
+            ID_forwardC, ID_forwardD : in std_logic;
             EXMEM_aluResult : in std_logic_vector(31 downto 0);
             
             -- WB stage outputs
             WB_regWrite : in std_logic;
-            WB_writeData, WB_writeReg: in std_logic_vector(31 downto 0);
+            WB_writeData : in std_logic_vector(31 downto 0);
+				WB_writeReg : in std_logic_vector(4 downto 0);
             
             -- IF stage outputs
             IFID_pcPlus4, IFID_instr : in std_logic_vector(31 downto 0);
@@ -50,7 +51,8 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
             IDEX_rd, IDEX_rs, IDEX_rt : out std_logic_vector(4 downto 0);
             IDEX_aluOp : out std_logic_vector(1 downto 0);
             IDEX_aluSrc, IDEX_regDst, IDEX_memRead, IDEX_memWrite : out std_logic;
-            IDEX_regWrite, IDEX_memToReg : out std_logic
+            IDEX_regWrite, IDEX_memToReg : out std_logic;
+            functionCode : out std_logic_vector(5 downto 0)
         );
     end component;
 
@@ -136,7 +138,7 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
             MEMWB_o_memRead          : out std_logic;
             MEMWB_o_memWrite         : out std_logic;
             MEMWB_o_regWrite         : out std_logic;
-            MEMWB_o_memToReg         : out std_logic;
+            MEMWB_o_memToReg         : out std_logic
         );
     end component;
 
@@ -160,7 +162,7 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
         );
     end component;
     
-    component ForwardingUnit is
+    component forwarding_unit is
         port (
             -- as soon as the registers get decoded, before it's stored in the following pipeline register
             ID_rs           : in  std_logic_vector(4 downto 0);
@@ -202,7 +204,7 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
             if_id_flush: out std_logic;
 
             -- Ouput to ID
-            id_ex_flush: out std_logic;
+            id_ex_flush: out std_logic
         );
     end component;
 
@@ -215,10 +217,11 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
     
     -- ID
     SIGNAL IDEX_flush: std_logic;
-    SIGNAL ID_forwardC, ID_forwardD, : std_logic;
+    SIGNAL ID_forwardC, ID_forwardD : std_logic;
     SIGNAL EXMEM_aluResult : std_logic_vector(31 downto 0);
     SIGNAL WB_regWrite : std_logic;
-    SIGNAL WB_writeData, WB_writeReg: std_logic_vector(31 downto 0);
+    SIGNAL WB_writeData: std_logic_vector(31 downto 0);
+    SIGNAL WB_writeReg: std_logic_vector(4 downto 0);
     SIGNAL IFID_pcPlus4, IFID_instr : std_logic_vector(31 downto 0);
     
     -- EX
@@ -243,6 +246,7 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
     SIGNAL ForwardA_sel       : std_logic_vector(1 downto 0);
     SIGNAL ForwardB_sel       : std_logic_vector(1 downto 0);
     SIGNAL funcCode           : std_logic_vector(5 downto 0);
+    SIGNAL IDEX_rd: std_logic_vector(4 downto 0);	 
 
     -- MEM
     SIGNAL EXMEM_i_aluResult        :  std_logic_vector(31 downto 0);
@@ -255,14 +259,11 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
     SIGNAL EXMEM_i_memToReg         :  std_logic;
 
     -- WB
-    SIGNAL EXMEM_i_aluResult        :  std_logic_vector(31 downto 0);
-    SIGNAL EXMEM_i_writeData        :  std_logic_vector(31 downto 0);
-    SIGNAL EXMEM_i_destReg          :  std_logic_vector(4 downto 0);
-    SIGNAL EXMEM_i_branch           :  std_logic;
-    SIGNAL EXMEM_i_memRead          :  std_logic;
-    SIGNAL EXMEM_i_memWrite         :  std_logic;
-    SIGNAL EXMEM_i_regWrite         :  std_logic;
-    SIGNAL EXMEM_i_memToReg         :  std_logic;
+    SIGNAL i_regWrite   :  std_logic;
+    SIGNAL i_memToReg   :  std_logic;
+    SIGNAL i_memData    :  std_logic_vector(31 downto 0);
+    SIGNAL i_aluResult  :  std_logic_vector(31 downto 0);
+    SIGNAL i_EXMEM_rd   :  std_logic_vector(4 downto 0);
 
     -- forwarding unit
     SIGNAL ID_rs           :  std_logic_vector(4 downto 0);
@@ -279,11 +280,12 @@ architecture pipelinedTopLvl_arch of pipelinedTopLvl is
     SIGNAL id_ex_rt, id_ex_rd: std_logic_vector(4 downto 0);
     SIGNAL ex_mem_read: std_logic;
     SIGNAL ex_mem_rt: std_logic_vector(4 downto 0);
+	 SIGNAL IDEX_branch_taken: std_logic;
     
-    SIGNAL IDEX_rd: std_logic_vector(4 downto 0);
-    SIGNAL ex_mem_read: std_logic;
+    SIGNAL resetBar: std_logic;
 
 begin
+	resetBar <= not reset;
 
     instr_fetch: IF_stage
         port map(
@@ -307,7 +309,7 @@ begin
             -- inputs
             clk => clk,
             reset => reset,
-            IDEX_flush => IFID_flush,
+            IDEX_flush => IDEX_flush,
             ID_forwardC => ID_forwardC,
             ID_forwardD => ID_forwardD,
             EXMEM_aluResult => EXMEM_aluResult,
@@ -330,6 +332,12 @@ begin
             IDEX_memWrite => IDEX_i_memWrite,
             IDEX_regWrite => IDEX_i_regWrite,
             IDEX_memToReg => IDEX_i_memToReg
+            functionCode => funcCode,
+            ID_branch => ID_branch, 
+            IDEX_branch_taken => IDEX_i_branch_taken,
+            ID_jump => ID_jump,
+            ID_branch_addr => ID_branch_addr,
+            ID_jump_addr => ID_jump_addr
         );
 
     exec: EX_stage
@@ -352,10 +360,10 @@ begin
             IDEX_i_memWrite => IDEX_i_memWrite,
             IDEX_i_regWrite => IDEX_i_regWrite,
             IDEX_i_memToReg => IDEX_i_memToReg,
-            ForwardA_EXMEM => ForwardA_EXMEM,
-            ForwardA_MEMWB => ForwardA_MEMWB,
-            ForwardB_EXMEM => ForwardB_EXMEM,
-            ForwardB_MEMWB => ForwardB_MEMWB,
+            ForwardA_EXMEM => i_aluResult,
+            ForwardA_MEMWB => WB_writeData,
+            ForwardB_EXMEM => i_aluResult,
+            ForwardB_MEMWB => WB_writeData,
             ForwardA_sel => ForwardA_sel,
             ForwardB_sel => ForwardB_sel,
             funcCode => funcCode,
@@ -416,7 +424,7 @@ begin
             o_MEMWB_regWrite => WB_regWrite
         );  
 
-    forward: ForwardingUnit
+    forward: forwarding_unit
         port map(
             -- input
             ID_rs => IDEX_i_rs,
@@ -425,8 +433,8 @@ begin
             IDEX_rt => IDEX_rt,
             EXMEM_rd => i_EXMEM_rd,
             MEMWB_rd => WB_writeReg,
-            EXMEM_RegWrite => i_regWrite
-            MEMWB_RegWrite => WB_regWrite
+            EXMEM_RegWrite => i_regWrite,
+            MEMWB_RegWrite => WB_regWrite,
             -- output
             ForwardA => ForwardA_sel,
             ForwardB => ForwardB_sel,
@@ -434,8 +442,8 @@ begin
             ForwardD => ID_forwardD
         );
     
-    hazard: HazardDetectionUnit
-        port (
+    hazard: hazard_detection
+        port map(
             -- input
             if_id_branch => ID_branch,
             if_id_rs => IFID_instr(25 downto 21),

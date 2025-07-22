@@ -89,11 +89,13 @@ architecture structural of ID_stage is
 
     SIGNAL i_signExtImm: STD_LOGIC_VECTOR(31 downto 0);
     SIGNAL branch_offset: STD_LOGIC_VECTOR(31 downto 0);
+    SIGNAL resetBar: STD_LOGIC;
     SIGNAL control_bus, control_mux_out: STD_LOGIC_VECTOR(9 downto 0);
     SIGNAL i_readData1, i_readData2: STD_LOGIC_VECTOR(31 downto 0);
     SIGNAL branch_data1, branch_data2: STD_LOGIC_VECTOR(31 downto 0);
     SIGNAL branch_cond: STD_LOGIC;
 begin
+    resetBar <= not reset;
 
     -- Control Logic
     controlUnit: controlLogicUnit PORT MAP(
@@ -115,7 +117,7 @@ begin
         PORT MAP(
             s => IDEX_flush,
             x0 => control_bus,
-            x1 => "0000000000",
+            x1 => (others => '0'),
             y => control_mux_out
         );
 

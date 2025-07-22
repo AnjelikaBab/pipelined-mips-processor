@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity ForwardingUnit2 is
+entity forwarding_unit_struct is
     port (
         ID_rs           : in  std_logic_vector(4 downto 0);
         ID_rt           : in  std_logic_vector(4 downto 0);
@@ -19,7 +19,7 @@ entity ForwardingUnit2 is
     );
 end entity;
 
-architecture Structural of ForwardingUnit2 is
+architecture Structural of forwarding_unit_struct is
 
     component nbitcomparator
         generic (n : integer := 5);
